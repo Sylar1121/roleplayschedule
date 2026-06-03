@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<!-- saved from url=(0290)https://artifact.docs.qq.com/kaiwu-artifacts/144115213801246792/b888ec5e762546288a354c777651eb6e/12109c61c8ee519eb0c6ac8fd314df9d/releases/v16/output/%E6%B0%B4%E9%BE%99%E5%A4%B4%E7%BE%A4%E5%89%A7%E6%9C%AC%E6%9D%80%E6%99%BA%E8%83%BD%E6%8E%92%E6%9C%9F%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F.html -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>水龙头群剧本杀智能排期管理系统 v15</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .version {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab:hover {
+            background: #e0e0e0;
+        }
+        
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #667eea;
+            color: #667eea;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .drag-zone {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: #f9f9ff;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .drag-zone:hover, .drag-zone.drag-over {
+            background: #f0f0ff;
+            border-color: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .drag-zone .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .drag-zone p {
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .drag-zone small {
+            color: #999;
+            display: block;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .editable {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .editable:hover {
+            background: #fff3cd;
+        }
+        
+        .editable input {
+            width: 100%;
+            padding: 5px;
+            border: 2px solid #667eea;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .status-full {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-available {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .stat-card h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .participant-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .participant-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+        }
+        
+        .participant-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .participant-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+        }
+        
+        .participant-count {
+            color: #667eea;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .debug-panel {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 30px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .debug-panel h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .month-header {
+            background: #f0f0f0;
+            font-weight: bold;
+            text-align: center;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .info-box.warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="toast" id="toast"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🎭 水龙头群剧本杀智能排期管理系统</h1>
+            <div class="version">v15.0 - 支持浏览器本地自动保存</div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab(&#39;schedule&#39;)">📅 排期管理</div>
+            <div class="tab" onclick="switchTab(&#39;participants&#39;)">👥 参与人汇总</div>
+            <div class="tab" onclick="switchTab(&#39;stats&#39;)">📊 统计仪表板</div>
+            <div class="tab" onclick="switchTab(&#39;backup&#39;)">💾 数据备份</div>
+        </div>
+        
+        <div class="content">
+            <!-- 排期管理标签页 -->
+            <div id="schedule-tab" class="tab-content active">
+                <div class="drag-zone" id="dragZone">
+                    <div class="icon">📂</div>
+                    <p>拖拽 Excel 文件到此处自动导入</p>
+                    <small>支持 .xlsx 格式，自动识别"排期总表"工作表</small>
+                    <small>提示：也可以点击此处选择文件</small>
+                </div>
+                
+                <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileSelect(event)">
+                
+                <div class="btn-group">
+                    <button class="btn" onclick="document.getElementById(&#39;fileInput&#39;).click()">📂 导入Excel</button>
+                    <button class="btn btn-success" onclick="exportToExcel()">📥 导出Excel</button>
+                    <button class="btn" onclick="addNewSchedule()">➕ 新增排期</button>
+                    <button class="btn" onclick="saveToLocalStorage()">💾 保存到本地</button>
+                    <button class="btn btn-danger" onclick="clearAllData()">🗑️ 清空数据</button>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 提示：</strong> 所有修改会自动保存到浏览器本地存储，刷新页面或关闭浏览器后数据不会丢失。
+                </div>
+                
+                <div style="overflow-x: auto; max-height: 600px;">
+                    <table id="scheduleTable">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>月份</th>
+                                <th>日期</th>
+                                <th>星期</th>
+                                <th>时间段</th>
+                                <th>剧本名称</th>
+                                <th>人数</th>
+                                <th>参与人</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 参与人汇总标签页 -->
+            <div id="participants-tab" class="tab-content">
+                <h2>👥 参与人档期汇总</h2>
+                <div class="btn-group">
+                    <button class="btn" onclick="generateParticipantSummary()">🔄 刷新汇总</button>
+                    <button class="btn btn-success" onclick="exportParticipantsToExcel()">📥 导出汇总表</button>
+                </div>
+                <div id="participantSummary"></div>
+            </div>
+            
+            <!-- 统计仪表板标签页 -->
+            <div id="stats-tab" class="tab-content">
+                <h2>📊 统计仪表板</h2>
+                <div class="stats-grid" id="statsGrid"></div>
+                <div id="monthlyStats"></div>
+                <div id="scriptStats"></div>
+            </div>
+            
+            <!-- 数据备份标签页 -->
+            <div id="backup-tab" class="tab-content">
+                <h2>💾 数据备份与恢复</h2>
+                
+                <div class="info-box">
+                    <strong>📌 数据自动保存说明：</strong><br>
+                    系统已启用浏览器 localStorage 自动保存功能，您的数据会自动保存在本地浏览器中，无需手动备份。
+                </div>
+                
+                <div class="info-box warning">
+                    <strong>⚠️ 注意事项：</strong><br>
+                    • localStorage 数据仅保存在当前浏览器中<br>
+                    • 清除浏览器数据会导致排期数据丢失<br>
+                    • 建议定期导出 Excel 或在下方下载 JSON 备份
+                </div>
+                
+                <h3>手动备份（可选）</h3>
+                <div class="btn-group">
+                    <button class="btn" onclick="downloadJSON()">📥 下载 JSON 备份</button>
+                    <button class="btn" onclick="document.getElementById(&#39;importJSONInput&#39;).click()">📂 导入 JSON 备份</button>
+                    <input type="file" id="importJSONInput" accept=".json" onchange="importJSON(event)">
+                </div>
+                
+                <div class="debug-panel" id="debugPanel">
+                    <h4>📋 调试信息</h4>
+                    <div id="debugInfo">等待操作...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./水龙头群剧本杀智能排期管理系统 v15_files/xlsx.full.min.js"></script>
+    <script>
+        // 全局数据
+        let scheduleData = [];
+        let nextId = 1;
+        const STORAGE_KEY = 'scriptKillerSchedule_v15';
+        
+        // 初始化
+        window.onload = function() {
+            loadFromLocalStorage();
+            renderScheduleTable();
+            updateParticipantSummary();
+            updateStats();
+        };
+        
+        // Tab 切换
+        function switchTab(tabName) {
+            // 隐藏所有标签内容
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // 显示选中的标签
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            // 如果切换到汇总标签，刷新数据
+            if (tabName === 'participants') {
+                generateParticipantSummary();
+            } else if (tabName === 'stats') {
+                updateStats();
+            }
+        }
+        
+        // 拖拽功能
+        const dragZone = document.getElementById('dragZone');
+        
+        dragZone.addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+        
+        dragZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragZone.classList.add('drag-over');
+        });
+        
+        dragZone.addEventListener('dragleave', () => {
+            dragZone.classList.remove('drag-over');
+        });
+        
+        dragZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragZone.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        
+        // 文件选择处理
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+        
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // 尝试找到"排期总表"或第一个工作表
+                    let sheetName = workbook.SheetNames.find(name => name.includes('排期总表')) || workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    
+                    // 转换为 JSON
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    // 解析数据
+                    parseScheduleData(jsonData);
+                    
+                    showToast('✅ Excel 导入成功！');
+                    saveToLocalStorage();
+                } catch (error) {
+                    showToast('❌ 文件读取失败：' + error.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        
+        // 解析排期数据
+        function parseScheduleData(jsonData) {
+            scheduleData = [];
+            nextId = 1;
+            
+            // 跳过表头，从第2行开始
+            for (let i = 1; i < jsonData.length; i++) {
+                const row = jsonData[i];
+                if (!row || row.length === 0 || !row[0]) continue;
+                
+                // 检查是否有月份分隔行
+                if (row[0] && row[0].toString().includes('月')) {
+                    continue; // 跳过月份行
+                }
+                
+                const record = {
+                    _id: nextId++,
+                    月份: row[1] || '',
+                    日期: row[2] || '',
+                    星期: row[3] || '',
+                    时间段: row[4] || '',
+                    剧本名称: row[5] || '',
+                    人数: row[6] || 0,
+                    参与人: row[7] || '',
+                    状态: row[8] || ''
+                };
+                
+                // 自动计算人数
+                if (record.参与人 && !record.人数) {
+                    record.人数 = record.参与人.split(/[,，、]/).filter(p => p.trim()).length;
+                }
+                
+                // 自动提取月份
+                if (record.日期 && !record.月份) {
+                    const match = record.日期.match(/(\d+)月/);
+                    if (match) record.月份 = match[1] + '月';
+                }
+                
+                scheduleData.push(record);
+            }
+            
+            renderScheduleTable();
+            updateParticipantSummary();
+            updateStats();
+        }
+        
+        // 渲染排期表格
+        function renderScheduleTable() {
+            const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = '';
+            
+            // 排序：按月份和日期
+            scheduleData.sort((a, b) => {
+                const monthA = parseInt(a.月份) || 0;
+                const monthB = parseInt(b.月份) || 0;
+                if (monthA !== monthB) return monthA - monthB;
+                
+                const dayA = parseInt(a.日期) || 0;
+                const dayB = parseInt(b.日期) || 0;
+                return dayA - dayB;
+            });
+            
+            // 添加月份分组
+            let currentMonth = '';
+            
+            scheduleData.forEach((record, index) => {
+                // 月份分组标题
+                if (record.月份 !== currentMonth) {
+                    currentMonth = record.月份;
+                    const monthRow = document.createElement('tr');
+                    monthRow.innerHTML = `
+                        <td colspan="10" class="month-header">${currentMonth}</td>
+                    `;
+                    tbody.appendChild(monthRow);
+                }
+                
+                const tr = document.createElement('tr');
+                const statusClass = record.状态 === '满' ? 'status-full' : 'status-available';
+                
+                tr.innerHTML = `
+                    <td>${record._id}</td>
+                    <td class="editable" onclick="editField(${record._id}, '月份', this)">${record.月份}</td>
+                    <td class="editable" onclick="editField(${record._id}, '日期', this)">${record.日期}</td>
+                    <td class="editable" onclick="editField(${record._id}, '星期', this)">${record.星期}</td>
+                    <td class="editable" onclick="editField(${record._id}, '时间段', this)">${record.时间段}</td>
+                    <td class="editable" onclick="editField(${record._id}, '剧本名称', this)">${record.剧本名称}</td>
+                    <td class="editable" onclick="editField(${record._id}, '人数', this)">${record.人数}</td>
+                    <td class="editable" onclick="editField(${record._id}, '参与人', this)">${record.参与人}</td>
+                    <td><span class="status-badge ${statusClass}">${record.状态 || '未满'}</span></td>
+                    <td>
+                        <button class="btn" style="padding: 5px 10px; font-size: 0.9em;" onclick="deleteRecord(${record._id})">删除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 编辑字段
+        function editField(id, field, cell) {
+            const record = scheduleData.find(r => r._id === id);
+            if (!record) return;
+            
+            const originalValue = record[field];
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = originalValue;
+            input.style.width = '100%';
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+            
+            const finishEdit = () => {
+                const newValue = input.value;
+                record[field] = newValue;
+                
+                // 自动重新计算
+                if (field === '参与人') {
+                    record.人数 = newValue.split(/[,，、]/).filter(p => p.trim()).length;
+                    // 重新渲染整行
+                    renderScheduleTable();
+                } else {
+                    cell.innerHTML = newValue;
+                    cell.classList.add('editable');
+                    cell.onclick = () => editField(id, field, cell);
+                }
+                
+                // 自动保存
+                saveToLocalStorage();
+            };
+            
+            input.onblur = finishEdit;
+            input.onkeypress = (e) => {
+                if (e.key === 'Enter') {
+                    finishEdit();
+                }
+            };
+        }
+        
+        // 删除记录
+        function deleteRecord(id) {
+            if (!confirm('确定要删除这条记录吗？')) return;
+            
+            scheduleData = scheduleData.filter(r => r._id !== id);
+            renderScheduleTable();
+            updateParticipantSummary();
+            updateStats();
+            saveToLocalStorage();
+            
+            showToast('✅ 删除成功！');
+        }
+        
+        // 新增排期
+        function addNewSchedule() {
+            const newRecord = {
+                _id: nextId++,
+                月份: '',
+                日期: '',
+                星期: '',
+                时间段: '',
+                剧本名称: '',
+                人数: 0,
+                参与人: '',
+                状态: '未满'
+            };
+            
+            scheduleData.push(newRecord);
+            renderScheduleTable();
+            saveToLocalStorage();
+            
+            showToast('✅ 新增排期成功！');
+        }
+        
+        // 生成参与人汇总
+        function generateParticipantSummary() {
+            const participantMap = {};
+            
+            scheduleData.forEach(record => {
+                if (!record.参与人) return;
+                
+                const participants = record.参与人.split(/[,，、]/).map(p => p.trim()).filter(p => p);
+                
+                participants.forEach(name => {
+                    if (!participantMap[name]) {
+                        participantMap[name] = {
+                            name: name,
+                            count: 0,
+                            schedules: []
+                        };
+                    }
+                    participantMap[name].count++;
+                    participantMap[name].schedules.push({
+                        日期: record.日期,
+                        剧本名称: record.剧本名称
+                    });
+                });
+            });
+            
+            // 转换为数组并排序
+            const participantList = Object.values(participantMap).sort((a, b) => b.count - a.count);
+            
+            // 渲染
+            const container = document.getElementById('participantSummary');
+            
+            if (participantList.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">暂无参与人数据</p>';
+                return;
+            }
+            
+            let html = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>总参与人数</h3>
+                        <div class="value">${participantList.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>总排期场次</h3>
+                        <div class="value">${scheduleData.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>最活跃参与人</h3>
+                        <div class="value">${participantList[0].name}</div>
+                    </div>
+                </div>
+                <h3 style="margin-top: 30px;">参与人详情</h3>
+                <div class="participant-list">
+            `;
+            
+            participantList.forEach(p => {
+                html += `
+                    <div class="participant-card">
+                        <div class="participant-name">${p.name}</div>
+                        <div class="participant-count">参与 ${p.count} 场</div>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 8px;">
+                            ${p.schedules.slice(0, 3).map(s => `${s.日期} ${s.剧本名称}`).join('<br>')}
+                            ${p.schedules.length > 3 ? '<br>...' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        // 更新统计
+        function updateStats() {
+            // 基本统计
+            const totalSchedules = scheduleData.length;
+            const totalParticipants = new Set();
+            const scriptCount = {};
+            const monthCount = {};
+            
+            scheduleData.forEach(record => {
+                if (record.参与人) {
+                    record.参与人.split(/[,，、]/).map(p => p.trim()).filter(p => p).forEach(name => {
+                        totalParticipants.add(name);
+                    });
+                }
+                
+                if (record.剧本名称) {
+                    scriptCount[record.剧本名称] = (scriptCount[record.剧本名称] || 0) + 1;
+                }
+                
+                if (record.月份) {
+                    monthCount[record.月份] = (monthCount[record.月份] || 0) + 1;
+                }
+            });
+            
+            // 渲染统计卡片
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <h3>总排期数</h3>
+                    <div class="value">${totalSchedules}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>总参与人数</h3>
+                    <div class="value">${totalParticipants.size}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>剧本种类</h3>
+                    <div class="value">${Object.keys(scriptCount).length}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>覆盖月份</h3>
+                    <div class="value">${Object.keys(monthCount).length}</div>
+                </div>
+            `;
+            
+            // 月度统计
+            let monthlyHtml = '<h3>月度排期统计</h3><table><thead><tr><th>月份</th><th>排期场次</th><th>占比</th></tr></thead><tbody>';
+            Object.entries(monthCount)
+                .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
+                .forEach(([month, count]) => {
+                    const percentage = ((count / totalSchedules) * 100).toFixed(1);
+                    monthlyHtml += `<tr><td>${month}</td><td>${count}</td><td>${percentage}%</td></tr>`;
+                });
+            monthlyHtml += '</tbody></table>';
+            document.getElementById('monthlyStats').innerHTML = monthlyHtml;
+            
+            // 剧本统计
+            let scriptHtml = '<h3>剧本排期排行</h3><table><thead><tr><th>剧本名称</th><th>排期次数</th><th>占比</th></tr></thead><tbody>';
+            Object.entries(scriptCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10)
+                .forEach(([script, count]) => {
+                    const percentage = ((count / totalSchedules) * 100).toFixed(1);
+                    scriptHtml += `<tr><td>${script}</td><td>${count}</td><td>${percentage}%</td></tr>`;
+                });
+            scriptHtml += '</tbody></table>';
+            document.getElementById('scriptStats').innerHTML = scriptHtml;
+        }
+        
+        // 导出 Excel
+        function exportToExcel() {
+            try {
+                // 准备数据
+                const exportData = [
+                    ['序号', '月份', '日期', '星期', '时间段', '剧本名称', '人数', '参与人', '状态']
+                ];
+                
+                scheduleData.forEach(record => {
+                    exportData.push([
+                        record._id,
+                        record.月份,
+                        record.日期,
+                        record.星期,
+                        record.时间段,
+                        record.剧本名称,
+                        record.人数,
+                        record.参与人,
+                        record.状态
+                    ]);
+                });
+                
+                // 创建工作表
+                const ws = XLSX.utils.aoa_to_sheet(exportData);
+                
+                // 设置列宽
+                ws['!cols'] = [
+                    { wch: 6 },
+                    { wch: 8 },
+                    { wch: 12 },
+                    { wch: 8 },
+                    { wch: 12 },
+                    { wch: 25 },
+                    { wch: 6 },
+                    { wch: 40 },
+                    { wch: 8 }
+                ];
+                
+                // 创建工作簿
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "排期总表");
+                
+                // 添加参与人汇总表
+                const participantData = [['参与人', '参与场次']];
+                const participantMap = {};
+                scheduleData.forEach(record => {
+                    if (!record.参与人) return;
+                    record.参与人.split(/[,，、]/).map(p => p.trim()).filter(p => p).forEach(name => {
+                        participantMap[name] = (participantMap[name] || 0) + 1;
+                    });
+                });
+                Object.entries(participantMap).sort((a, b) => b[1] - a[1]).forEach(([name, count]) => {
+                    participantData.push([name, count]);
+                });
+                
+                const ws2 = XLSX.utils.aoa_to_sheet(participantData);
+                XLSX.utils.book_append_sheet(wb, ws2, "参与人档期汇总");
+                
+                // 导出
+                XLSX.writeFile(wb, '水龙头群剧本杀排期表.xlsx');
+                
+                showToast('✅ Excel 导出成功！');
+            } catch (error) {
+                showToast('❌ 导出失败：' + error.message);
+            }
+        }
+        
+        // 导出参与人汇总
+        function exportParticipantsToExcel() {
+            try {
+                const participantMap = {};
+                
+                scheduleData.forEach(record => {
+                    if (!record.参与人) return;
+                    record.参与人.split(/[,，、]/).map(p => p.trim()).filter(p => p).forEach(name => {
+                        if (!participantMap[name]) {
+                            participantMap[name] = [];
+                        }
+                        participantMap[name].push(record.日期 + ' ' + record.剧本名称);
+                    });
+                });
+                
+                const exportData = [['参与人', '参与场次', '参与日期及剧本']];
+                
+                Object.entries(participantMap)
+                    .sort((a, b) => b[1].length - a[1].length)
+                    .forEach(([name, schedules]) => {
+                        exportData.push([name, schedules.length, schedules.join('、')]);
+                    });
+                
+                const ws = XLSX.utils.aoa_to_sheet(exportData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "参与人档期汇总");
+                
+                XLSX.writeFile(wb, '参与人档期汇总.xlsx');
+                
+                showToast('✅ 参与人汇总导出成功！');
+            } catch (error) {
+                showToast('❌ 导出失败：' + error.message);
+            }
+        }
+        
+        // localStorage 保存与加载
+        function saveToLocalStorage() {
+            try {
+                const data = {
+                    scheduleData: scheduleData,
+                    nextId: nextId,
+                    timestamp: new Date().getTime()
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                console.log('✅ 数据已自动保存到 localStorage');
+            } catch (error) {
+                console.error('❌ 保存失败：', error);
+            }
+        }
+        
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    scheduleData = data.scheduleData || [];
+                    nextId = data.nextId || 1;
+                    console.log('✅ 从 localStorage 加载数据成功，共 ' + scheduleData.length + ' 条记录');
+                    showToast('✅ 已加载本地保存的数据！');
+                } else {
+                    console.log('ℹ️ 没有找到本地保存的数据，使用默认数据');
+                    loadDefaultData();
+                }
+            } catch (error) {
+                console.error('❌ 加载失败：', error);
+                loadDefaultData();
+            }
+        }
+        
+        // 默认数据（示例）
+        function loadDefaultData() {
+            scheduleData = [
+                {
+                    _id: nextId++,
+                    月份: '6月',
+                    日期: '6月8日',
+                    星期: '周日',
+                    时间段: '下午',
+                    剧本名称: '醉凌云',
+                    人数: 6,
+                    参与人: '卷卷、晓悦、猫猫、Heow、Luke、凯伦',
+                    状态: '满'
+                },
+                {
+                    _id: nextId++,
+                    月份: '6月',
+                    日期: '6月15日',
+                    星期: '周日',
+                    时间段: '下午',
+                    剧本名称: '流芳',
+                    人数: 7,
+                    参与人: '卷卷、晓悦、猫猫、Heow、Luke、凯伦、小蛇',
+                    状态: '满'
+                },
+                {
+                    _id: nextId++,
+                    月份: '6月',
+                    日期: '6月22日',
+                    星期: '周日',
+                    时间段: '下午',
+                    剧本名称: '愚人对白',
+                    人数: 5,
+                    参与人: '卷卷、晓悦、猫猫、CCY、Tina',
+                    状态: '未满'
+                },
+                {
+                    _id: nextId++,
+                    月份: '6月',
+                    日期: '6月29日',
+                    星期: '周日',
+                    时间段: '下午',
+                    剧本名称: '青白',
+                    人数: 6,
+                    参与人: '卷卷、晓悦、猫猫、Mr.S、Yijiin、小路哥',
+                    状态: '满'
+                },
+                {
+                    _id: nextId++,
+                    月份: '7月',
+                    日期: '7月6日',
+                    星期: '周日',
+                    时间段: '下午',
+                    剧本名称: '金粉',
+                    人数: 6,
+                    参与人: '卷卷、晓悦、猫猫、Heow、Luke、智雅',
+                    状态: '满'
+                },
+                {
+                    _id: nextId++,
+                    月份: '7月',
+                    日期: '7月13日',
+                    星期: '周日',
+                    时间段: '下午',
+                    剧本名称: '不复出焉',
+                    人数: 5,
+                    参与人: '卷卷、晓悦、猫猫、糖、小蛇',
+                    状态: '未满'
+                },
+                {
+                    _id: nextId++,
+                    月份: '7月',
+                    日期: '7月20日',
+                    星期: '周日',
+                    时间段: '下午',
+                    剧本名称: '醉凌云',
+                    人数: 6,
+                    参与人: '卷卷、晓悦、猫猫、Heow、Luke、凯伦',
+                    状态: '满'
+                }
+            ];
+            console.log('ℹ️ 已加载默认示例数据');
+        }
+        
+        // 清空数据
+        function clearAllData() {
+            if (!confirm('确定要清空所有数据吗？此操作不可恢复！')) return;
+            
+            scheduleData = [];
+            nextId = 1;
+            localStorage.removeItem(STORAGE_KEY);
+            renderScheduleTable();
+            updateParticipantSummary();
+            updateStats();
+            
+            showToast('✅ 数据已清空！');
+        }
+        
+        // JSON 备份与恢复
+        function downloadJSON() {
+            const data = {
+                scheduleData: scheduleData,
+                nextId: nextId,
+                exportTime: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '水龙头群剧本杀排期备份_' + new Date().toISOString().slice(0, 10) + '.json';
+            a.click();
+            
+            showToast('✅ JSON 备份下载成功！');
+        }
+        
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.scheduleData && Array.isArray(data.scheduleData)) {
+                        scheduleData = data.scheduleData;
+                        nextId = data.nextId || scheduleData.length + 1;
+                        
+                        renderScheduleTable();
+                        updateParticipantSummary();
+                        updateStats();
+                        saveToLocalStorage();
+                        
+                        showToast('✅ JSON 备份导入成功！');
+                    } else {
+                        showToast('❌ 无效的备份文件格式！');
+                    }
+                } catch (error) {
+                    showToast('❌ 导入失败：' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // 更新参与人汇总
+        function updateParticipantSummary() {
+            // 这个函数被调用时不需要做什么，因为 generateParticipantSummary 会处理
+        }
+        
+        // Toast 提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            toast.style.background = message.includes('✅') ? '#4caf50' : '#f44336';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 自动保存监听
+        setInterval(() => {
+            if (scheduleData.length > 0) {
+                saveToLocalStorage();
+            }
+        }, 30000); // 每30秒自动保存一次
+        
+    </script>
+
+</body></html>
