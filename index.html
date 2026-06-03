@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>水龙头群剧本杀排期表</title>
+<title>水龙头群剧本杀排期表 V22</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <style>
 :root{
@@ -266,15 +266,17 @@ textarea{min-height:42px;resize:vertical}
     </nav>
 
     <div id="viewerTip" class="viewer-tip">当前是群友查看版：只展示最新排期，编辑按钮已隐藏。</div>
-    <div id="adminTip" class="admin-tip hidden">当前是管理员版：可以新增、删除、导入导出。分享给群友时，请使用不带 <strong>?admin=1</strong> 的网址。</div>
+    <div id="adminTip" class="admin-tip hidden">当前是管理员版：可以新增、删除、导入导出。改完请下载 data.json 并上传覆盖 GitHub 仓库里的 data.json。</div>
 
     <section id="schedule" class="panel active">
       <div class="toolbar admin-only">
         <button class="btn" onclick="addRow()">＋ 添加排期</button>
         <button class="btn green" onclick="exportExcel()">导出 Excel</button>
         <button class="btn secondary" onclick="document.getElementById('excelFile').click()">导入 Excel</button>
-        <button class="btn gray" onclick="downloadBackup()">下载备份</button>
+        <button class="btn gray" onclick="downloadBackup()">下载 data.json</button>
         <button class="btn gray" onclick="document.getElementById('jsonFile').click()">导入备份</button>
+        <button class="btn secondary" onclick="reloadOnlineData()">读取线上 data.json</button>
+        <button class="btn red" onclick="clearDraftAndReload()">清除本地草稿</button>
         <button class="btn red" onclick="clearData()">清空数据</button>
         <input id="excelFile" class="hidden" type="file" accept=".xlsx,.xls" onchange="importExcel(event)">
         <input id="jsonFile" class="hidden" type="file" accept=".json" onchange="importBackup(event)">
@@ -324,11 +326,12 @@ textarea{min-height:42px;resize:vertical}
       <div class="backup-box">
         <div class="notice">
           <strong>数据说明：</strong><br>
-          当前版本使用浏览器本地保存。你在管理员版里修改后，建议导出 Excel 或下载备份。<br>
-          如果要让群友看到最新内容，需要把更新后的 index.html 或数据文件重新上传到 GitHub。
+          当前版本会在群友查看版自动读取 GitHub 上的 <strong>data.json</strong>。<br>
+          你在管理员版修改后，请点击 <strong>下载 data.json</strong>，再上传覆盖 GitHub 仓库里的 <strong>data.json</strong>。<br>
+          GitHub 部署后，群友刷新页面即可看到最新内容。
         </div>
         <div>
-          <button class="btn gray" onclick="downloadBackup()">下载 JSON 备份</button>
+          <button class="btn gray" onclick="downloadBackup()">下载 data.json</button>
           <button class="btn green" onclick="exportExcel()">导出 Excel</button>
         </div>
       </div>
@@ -337,7 +340,9 @@ textarea{min-height:42px;resize:vertical}
 </main>
 
 <script>
-const STORAGE_KEY = "waterlong_roleplay_schedule_v20";
+
+const DATA_URL = "./data.json";
+const DRAFT_KEY = "waterlong_roleplay_schedule_v22_admin_draft";
 const isAdmin = new URLSearchParams(location.search).get("admin") === "1";
 let schedules = [];
 
@@ -348,14 +353,14 @@ const sampleData = [
   {date:"6月14日",session:"午场",time:"11:00",location:"重楼·沉浸剧社",script:"《红豆》",status:"满",participants:"凯伦、猫猫、Luke、Heow、yzn、yuva",roles:"",note:"",count:6}
 ];
 
-function init(){
+async function init(){
   document.body.classList.toggle("admin-mode", isAdmin);
   document.querySelectorAll(".admin-only").forEach(el => el.classList.toggle("hidden", !isAdmin));
-  document.getElementById("modeText").textContent = isAdmin ? "管理员版 · 编辑排期与备份数据" : "群友查看版 · 查看最新车次与报名情况";
+  document.getElementById("modeText").textContent = isAdmin ? "管理员版 · 编辑排期与备份数据" : "群友查看版 · 自动读取 GitHub 上的 data.json";
   document.getElementById("viewerTip").classList.toggle("hidden", isAdmin);
   document.getElementById("adminTip").classList.toggle("hidden", !isAdmin);
-  load();
   bindTabs();
+  await load();
   render();
 }
 
@@ -372,15 +377,55 @@ function bindTabs(){
   });
 }
 
-function load(){
-  const saved = localStorage.getItem(STORAGE_KEY);
-  schedules = saved ? JSON.parse(saved) : sampleData;
-  normalize();
+async function load(){
+  try{
+    // 群友查看版永远读取 GitHub Pages 上的 data.json，避免每个人看到自己的本地缓存。
+    // 加时间戳是为了减少浏览器缓存导致的“朋友还看到旧内容”问题。
+    const res = await fetch(`${DATA_URL}?v=${Date.now()}`, {cache:"no-store"});
+    if(!res.ok) throw new Error("data.json not found");
+    const remote = await res.json();
+    schedules = normalizeImportedData(remote);
+    normalize();
+
+    // 管理员版：如果你正在编辑但还没上传 data.json，刷新后保留本地草稿。
+    // 第一次使用 V22 时没有草稿，会直接读取线上 data.json。
+    if(isAdmin){
+      const draft = localStorage.getItem(DRAFT_KEY);
+      if(draft){
+        const parsed = JSON.parse(draft);
+        if(Array.isArray(parsed) && parsed.length){
+          schedules = parsed;
+          normalize();
+          showLocalDraftNotice();
+        }
+      }
+    }
+  }catch(e){
+    console.warn("读取 data.json 失败，使用本地草稿或示例数据：", e);
+    const draft = isAdmin ? localStorage.getItem(DRAFT_KEY) : null;
+    schedules = draft ? JSON.parse(draft) : sampleData;
+    normalize();
+  }
 }
 
 function save(){
   normalize();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(schedules));
+  // 只把管理员编辑内容作为“草稿”存在本机，群友版不会读取它。
+  if(isAdmin){
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(schedules));
+  }
+}
+
+function normalizeImportedData(data){
+  if(Array.isArray(data)) return data;
+  if(data && Array.isArray(data.scheduleData)) return data.scheduleData;
+  if(data && Array.isArray(data.schedules)) return data.schedules;
+  return [];
+}
+
+function showLocalDraftNotice(){
+  const tip = document.getElementById("adminTip");
+  tip.innerHTML = '当前是管理员版：正在使用你的本地编辑草稿。改完请点击 <strong>下载 data.json</strong>，再上传覆盖 GitHub 里的 data.json。上传成功后可点击“清除本地草稿并读取线上数据”。';
 }
 
 function normalize(){
@@ -553,7 +598,7 @@ function downloadBackup(){
   const blob = new Blob([JSON.stringify(schedules,null,2)], {type:"application/json"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "水龙头群剧本杀排期备份.json";
+  a.download = "data.json";
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -570,6 +615,23 @@ function importBackup(e){
   };
   reader.readAsText(file);
   e.target.value = "";
+}
+
+
+async function reloadOnlineData(){
+  if(!confirm("确定读取线上 data.json 吗？这会覆盖当前页面里的未下载修改。")) return;
+  localStorage.removeItem(DRAFT_KEY);
+  await load();
+  render();
+  alert("已读取线上 data.json");
+}
+
+async function clearDraftAndReload(){
+  if(!confirm("确定清除本机管理员草稿，并重新读取线上 data.json 吗？")) return;
+  localStorage.removeItem(DRAFT_KEY);
+  await load();
+  render();
+  alert("本地草稿已清除，已读取线上 data.json");
 }
 
 function escapeHtml(str){
