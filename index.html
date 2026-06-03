@@ -423,12 +423,57 @@ function normalizeImportedData(data){
   return [];
 }
 
+function sortSchedules(){
+
+  const today = new Date();
+
+  schedules.sort((a,b)=>{
+
+    function parseDate(item){
+
+      const match = String(item.date).match(/(\d+)月(\d+)/);
+
+      if(!match){
+        return new Date(2099,11,31);
+      }
+
+      const month = Number(match[1]) - 1;
+      const day = Number(match[2]);
+
+      return new Date(today.getFullYear(), month, day);
+    }
+
+    const dateA = parseDate(a);
+    const dateB = parseDate(b);
+
+    const passedA = dateA < today;
+    const passedB = dateB < today;
+
+    // 未开始排前面
+    if(passedA !== passedB){
+      return passedA ? 1 : -1;
+    }
+
+    // 同类型按日期
+    if(dateA.getTime() !== dateB.getTime()){
+      return dateA - dateB;
+    }
+
+    // 同一天按时间
+    return (a.time || "").localeCompare(b.time || "");
+  });
+
+}  
 function showLocalDraftNotice(){
   const tip = document.getElementById("adminTip");
   tip.innerHTML = '当前是管理员版：正在使用你的本地编辑草稿。改完请点击 <strong>下载 data.json</strong>，再上传覆盖 GitHub 里的 data.json。上传成功后可点击“清除本地草稿并读取线上数据”。';
 }
 
 function normalize(){
+
+  sortSchedules();
+
+  schedules.forEach((r,i)=>{
   schedules.forEach((r,i)=>{
     r.id = r.id || Date.now()+i;
     r.count = countParticipants(r.participants);
@@ -476,7 +521,21 @@ function render(){
         <td><button class="btn red small" onclick="deleteRow(${idx})">删除</button></td>
       </tr>`;
     }
-    return `<tr>
+    return `<tr style="${isPast ? 'opacity:.45;' : ''}">
+    const match = String(r.date).match(/(\d+)月(\d+)/);
+
+let isPast = false;
+
+if(match){
+
+  const d = new Date(
+    new Date().getFullYear(),
+    Number(match[1])-1,
+    Number(match[2])
+  );
+
+  isPast = d < new Date();
+}
       <td><div class="view-cell">${escapeHtml(r.date)}</div></td>
       <td><div class="view-cell">${escapeHtml(r.session)}</div></td>
       <td><div class="view-cell">${escapeHtml(r.time)}</div></td>
