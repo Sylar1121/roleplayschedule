@@ -124,10 +124,10 @@
     "location": "咔布咔剧本杀·沉浸式演绎",
     "script": "《金粉》",
     "status": "满",
-    "participants": "卷卷、晓悦、小蛇、智雅、Heow、Luke",
+    "participants": "卷卷、晓悦、小蛇、智雅、Heow、Luke、mumu",
     "roles": "",
     "note": "",
-    "count": 6
+    "count": 7
   },
   {
     "id": 1780487545101,
@@ -180,5 +180,31 @@
     "roles": "1女（时宁）",
     "note": "",
     "count": 6
+  },
+  {
+    "id": 1780493285744,
+    "date": "6月9",
+    "session": "晚场",
+    "time": "20:00",
+    "location": "阁下吃瓜狼",
+    "script": "《茉莉》",
+    "status": "差人",
+    "participants": "小蛇",
+    "roles": "2男",
+    "note": "",
+    "count": 1
+  },
+  {
+    "id": 1780493288707,
+    "date": "6月11",
+    "session": "午场",
+    "time": "11:00",
+    "location": "重楼·沉浸剧社",
+    "script": "《流氓叙事》",
+    "status": "差人",
+    "participants": "mumu",
+    "roles": "程走柳",
+    "note": "",
+    "count": 1
   }
 ]
