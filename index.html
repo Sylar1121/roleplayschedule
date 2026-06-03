@@ -356,7 +356,7 @@ const sampleData = [
 async function init(){
   document.body.classList.toggle("admin-mode", isAdmin);
   document.querySelectorAll(".admin-only").forEach(el => el.classList.toggle("hidden", !isAdmin));
-  document.getElementById("modeText").textContent = isAdmin ? "管理员版 · 编辑排期与备份数据" : "群友查看版 · 自动读取 GitHub 上的 data.json";
+  document.getElementById("modeText").textContent = isAdmin ? "管理员版 · 编辑排期与备份数据" : "规定：在店家的退定金截至日前，车里还差两人直接炸，超过一人可协商决定，优先保证定金。";
   document.getElementById("viewerTip").classList.toggle("hidden", isAdmin);
   document.getElementById("adminTip").classList.toggle("hidden", !isAdmin);
   bindTabs();
