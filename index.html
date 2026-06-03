@@ -474,7 +474,6 @@ function normalize(){
   sortSchedules();
 
   schedules.forEach((r,i)=>{
-  schedules.forEach((r,i)=>{
     r.id = r.id || Date.now()+i;
     r.count = countParticipants(r.participants);
     ["date","session","time","location","script","status","participants","roles","note"].forEach(k=>{
