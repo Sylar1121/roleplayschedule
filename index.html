@@ -589,7 +589,7 @@ function renderParticipants(){
     <tr>
       <td><strong>${escapeHtml(name)}</strong></td>
       <td>${items.length}</td>
-      <td>${items.map(escapeHtml).join("；")}</td>
+      <td>${items.map((item,index)=>`${index > 0 && index % 3 === 0 ? "<br>" : ""}${escapeHtml(item)}`).join(" ｜ ")}</td>
     </tr>
   `).join("");
 }
