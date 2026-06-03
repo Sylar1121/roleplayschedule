@@ -595,7 +595,7 @@ function renderParticipants(){
     <tr>
       <td><strong>${escapeHtml(name)}</strong></td>
       <td>${items.length}</td>
-      <td style="font-size:12px;line-height:1.55;">${items.map((item,index)=>(index > 0 && index % 3 === 0 ? "<br>" : "") + escapeHtml(item)).join(" ｜ ")}</td>
+      <td style="font-size:9px!important;line-height:1.45!important;">${items.map((item,index)=>(index > 0 && index % 3 === 0 ? "<br>" : "") + escapeHtml(item)).join(" ｜ ")}</td>
     </tr>
   `).join("");
 }
