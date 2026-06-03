@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>水龙头群剧本杀排期表 V22</title>
+<title>水龙头群剧本杀排期表 V23</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <style>
 :root{
@@ -193,6 +193,7 @@ tbody td{
 }
 tbody tr:nth-child(even){background:rgba(248,250,255,.55)}
 tbody tr:hover{background:rgba(88,103,232,.055)}
+tbody tr.past-row{opacity:.45;filter:grayscale(.35)}
 tbody tr:last-child td{border-bottom:0}
 input,textarea,select{
   width:100%;
@@ -423,56 +424,55 @@ function normalizeImportedData(data){
   return [];
 }
 
+function parseScheduleDate(item){
+  const match = String(item.date || "").match(/(\d+)月(\d+)/);
+  if(!match) return null;
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = Number(match[1]) - 1;
+  const day = Number(match[2]);
+
+  const hourMatch = String(item.time || "").match(/(\d{1,2})(?::(\d{1,2}))?/);
+  const hour = hourMatch ? Number(hourMatch[1]) : 0;
+  const minute = hourMatch && hourMatch[2] ? Number(hourMatch[2]) : 0;
+
+  return new Date(year, month, day, hour, minute, 0, 0);
+}
+
+function isPastSchedule(item){
+  const d = parseScheduleDate(item);
+  if(!d) return false;
+  return d.getTime() < new Date().getTime();
+}
+
 function sortSchedules(){
-
-  const today = new Date();
-
   schedules.sort((a,b)=>{
+    const dateA = parseScheduleDate(a);
+    const dateB = parseScheduleDate(b);
 
-    function parseDate(item){
+    const pastA = dateA ? isPastSchedule(a) : false;
+    const pastB = dateB ? isPastSchedule(b) : false;
 
-      const match = String(item.date).match(/(\d+)月(\d+)/);
-
-      if(!match){
-        return new Date(2099,11,31);
-      }
-
-      const month = Number(match[1]) - 1;
-      const day = Number(match[2]);
-
-      return new Date(today.getFullYear(), month, day);
+    // 未来/进行中的排前面，过期排后面
+    if(pastA !== pastB){
+      return pastA ? 1 : -1;
     }
 
-    const dateA = parseDate(a);
-    const dateB = parseDate(b);
-
-    const passedA = dateA < today;
-    const passedB = dateB < today;
-
-    // 未开始排前面
-    if(passedA !== passedB){
-      return passedA ? 1 : -1;
-    }
-
-    // 同类型按日期
-    if(dateA.getTime() !== dateB.getTime()){
-      return dateA - dateB;
-    }
-
-    // 同一天按时间
-    return (a.time || "").localeCompare(b.time || "");
+    // 同为未来或同为过期，按日期时间升序
+    const timeA = dateA ? dateA.getTime() : 9999999999999;
+    const timeB = dateB ? dateB.getTime() : 9999999999999;
+    return timeA - timeB;
   });
+}
 
-}  
 function showLocalDraftNotice(){
   const tip = document.getElementById("adminTip");
   tip.innerHTML = '当前是管理员版：正在使用你的本地编辑草稿。改完请点击 <strong>下载 data.json</strong>，再上传覆盖 GitHub 里的 data.json。上传成功后可点击“清除本地草稿并读取线上数据”。';
 }
 
 function normalize(){
-
   sortSchedules();
-
   schedules.forEach((r,i)=>{
     r.id = r.id || Date.now()+i;
     r.count = countParticipants(r.participants);
@@ -490,6 +490,7 @@ function countParticipants(text){
 function badgeClass(status){
   if(status === "满") return "full";
   if(status === "取消") return "cancel";
+  if(status === "已结束") return "cancel";
   return "open";
 }
 
@@ -520,21 +521,8 @@ function render(){
         <td><button class="btn red small" onclick="deleteRow(${idx})">删除</button></td>
       </tr>`;
     }
-    return `<tr style="${isPast ? 'opacity:.45;' : ''}">
-    const match = String(r.date).match(/(\d+)月(\d+)/);
-
-let isPast = false;
-
-if(match){
-
-  const d = new Date(
-    new Date().getFullYear(),
-    Number(match[1])-1,
-    Number(match[2])
-  );
-
-  isPast = d < new Date();
-}
+    const pastClass = isPastSchedule(r) ? 'past-row' : '';
+    return `<tr class="${pastClass}">
       <td><div class="view-cell">${escapeHtml(r.date)}</div></td>
       <td><div class="view-cell">${escapeHtml(r.session)}</div></td>
       <td><div class="view-cell">${escapeHtml(r.time)}</div></td>
