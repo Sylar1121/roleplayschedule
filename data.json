@@ -1,18 +1,5 @@
 [
   {
-    "date": "6月6日",
-    "session": "午场",
-    "time": "11:00",
-    "location": "呆角部沉浸剧场",
-    "script": "《金粉》",
-    "status": "满",
-    "participants": "mumu、小蛇、Heow、沪上、若斗",
-    "roles": "",
-    "note": "",
-    "count": 5,
-    "id": 1780485512159
-  },
-  {
     "date": "6月7日",
     "session": "晚场",
     "time": "20:00",
@@ -36,7 +23,7 @@
     "participants": "小蛇、磊磊、晓悦",
     "roles": "2男",
     "note": "",
-    "count": 2
+    "count": 3
   },
   {
     "id": 1780502041339,
@@ -137,10 +124,10 @@
     "location": "呆角部沉浸剧场",
     "script": "《金粉》",
     "status": "差人",
-    "participants": "",
-    "roles": "",
-    "note": "炸车",
-    "count": 0
+    "participants": "卷卷、mumu、猫猫、Luke、",
+    "roles": "差2女1男",
+    "note": "",
+    "count": 4
   },
   {
     "id": 1780487309166,
@@ -154,6 +141,32 @@
     "roles": "差2人",
     "note": "",
     "count": 3
+  },
+  {
+    "id": 1780844473153,
+    "date": "6月28日",
+    "session": "午场",
+    "time": "12:00",
+    "location": "VL-未蓝剧本杀",
+    "script": "《青白》",
+    "status": "差人",
+    "participants": "卷卷、猫猫、晓悦、凯伦",
+    "roles": "差沈青&苏无度",
+    "note": "",
+    "count": 4
+  },
+  {
+    "id": 1780844766393,
+    "date": "7月2日",
+    "session": "午场",
+    "time": "11:00",
+    "location": "VL-未蓝剧本杀",
+    "script": "《归昼》",
+    "status": "差人",
+    "participants": "媛宝、磊磊",
+    "roles": "祁谢cp +秦梁cp",
+    "note": "",
+    "count": 2
   },
   {
     "id": 1780487544843,
@@ -219,5 +232,31 @@
     "roles": "1女（时宁）",
     "note": "",
     "count": 6
+  },
+  {
+    "id": 1780844871773,
+    "date": "7月27",
+    "session": "午场",
+    "time": "11:00",
+    "location": "VL-未蓝剧本杀",
+    "script": "《归昼》",
+    "status": "差人",
+    "participants": "媛宝",
+    "roles": "晏(恋陪位)+祁宁",
+    "note": "",
+    "count": 1
+  },
+  {
+    "date": "6月6日",
+    "session": "午场",
+    "time": "11:00",
+    "location": "呆角部沉浸剧场",
+    "script": "《金粉》",
+    "status": "满",
+    "participants": "mumu、小蛇、Heow、沪上、若斗",
+    "roles": "",
+    "note": "",
+    "count": 5,
+    "id": 1780485512159
   }
 ]
